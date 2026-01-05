@@ -6,7 +6,7 @@ metadata:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: mi-primer-deployment
+  name: mi-primero-prueba
   namespace: prueba-nginx
   annotations:
     kubernetes.io/change-cause: "imagen nginx:latest"
