@@ -1,0 +1,64 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: prueba-nginx
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mi-primer-deployment
+  namespace: prueba-nginx
+  annotations:
+    kubernetes.io/change-cause: "imagen nginx:latest"
+    # OPCIONAL: Enlace directo a Grafana desde el botón de Argo CD
+    argocd.argoproj.io/dashboard-url: "http://localhost:3000/goto/cf7ebaxh6sni8f?orgId=1"
+  labels:
+    app: mi-prueba
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: back
+  template:
+    metadata:
+      labels:
+        app: back
+    spec:
+      containers:
+      - name: web
+        image: nginx:latest
+        command: [ "sh", "-c", "echo \"Pod hostname: $(hostname)\" > /usr/share/nginx/html/index.html && nginx -g 'daemon off;'" ]
+        ports:
+        - containerPort: 80
+          name: http-web # Nombre para que Prometheus lo identifique
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: custom-node-port-service-nginx
+  namespace: prueba-nginx
+spec:
+  type: NodePort
+  selector:
+    app: back
+  ports:
+    - name: http-web # DEBE coincidir con el ServiceMonitor #test Argos4
+      protocol: TCP
+      port: 8080
+      targetPort: 80
+      nodePort: 30080
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: nginx-monitor-new
+  namespace: prueba-nginx
+  labels:
+    release: monitoring # Asegúrate de que este sea el label de tu Prometheus
+spec:
+  selector:
+    matchLabels:
+      app: back
+  endpoints:
+  - port: http-web # Referencia al 'name' definido en el Service
+    interval: 15s
