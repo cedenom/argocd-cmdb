@@ -18,11 +18,11 @@ spec:
   replicas: 2
   selector:
     matchLabels:
-      app: back
+      app: back-prueba
   template:
     metadata:
       labels:
-        app: back
+        app: back-prueba
     spec:
       containers:
       - name: web
@@ -40,13 +40,13 @@ metadata:
 spec:
   type: NodePort
   selector:
-    app: back
+    app: back-prueba
   ports:
     - name: http-web # DEBE coincidir con el ServiceMonitor #test Argos4
       protocol: TCP
       port: 8080
       targetPort: 80
-      nodePort: 30080
+      nodePort: 30081
 ---
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
@@ -58,7 +58,7 @@ metadata:
 spec:
   selector:
     matchLabels:
-      app: back
+      app: back-prueba
   endpoints:
   - port: http-web # Referencia al 'name' definido en el Service
     interval: 15s
