@@ -46,7 +46,7 @@ spec:
       protocol: TCP
       port: 8080
       targetPort: 80
-      nodePort: 30081
+      nodePort: 30083
 ---
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
